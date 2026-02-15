@@ -2,8 +2,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import (
     accuracy_score,
     roc_auc_score,
@@ -19,7 +18,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # -------------------------------------------------
-# Session state init
+# Session state initialization
 # -------------------------------------------------
 if "run_evaluation" not in st.session_state:
     st.session_state.run_evaluation = False
@@ -79,7 +78,7 @@ use_uploaded = st.checkbox(
 )
 
 # -------------------------------------------------
-# Action buttons (SESSION SAFE)
+# Evaluation trigger (session-safe)
 # -------------------------------------------------
 if use_uploaded and uploaded_file is not None:
     if st.button("Run Evaluation on Uploaded Test Data"):
@@ -91,19 +90,22 @@ elif not use_uploaded:
     if st.button("Run Evaluation on Official Test Data"):
         st.session_state.df_eval = pd.read_csv(TEST_DATA_URL)
         st.session_state.run_evaluation = True
-        st.success("Evaluating on official test dataset")
+        st.success("Evaluating on official test dataset (matches notebook & README)")
 
 # -------------------------------------------------
-# Stop until evaluation is triggered
+# Stop execution until evaluation is triggered
 # -------------------------------------------------
 if not st.session_state.run_evaluation:
-    st.info("Please choose a test dataset and click the evaluation button.")
+    st.info(
+        "Please upload a test dataset or choose the official test dataset, "
+        "then click the evaluation button."
+    )
     st.stop()
 
 df = st.session_state.df_eval
 
 # -------------------------------------------------
-# Validate target
+# Validate target column
 # -------------------------------------------------
 if "num" not in df.columns:
     st.error("Target column 'num' not found in dataset.")
@@ -116,7 +118,7 @@ y = (df["num"] > 0).astype(int)
 X = df.drop("num", axis=1)
 
 # -------------------------------------------------
-# Encode categorical features
+# Encode categorical features (same as notebook)
 # -------------------------------------------------
 for col in X.columns:
     if X[col].dtype == "object":
@@ -124,16 +126,13 @@ for col in X.columns:
         X[col] = le.fit_transform(X[col].astype(str))
 
 # -------------------------------------------------
-# Impute + scale
+# Apply preprocessing pipeline (fitted on TRAIN data)
 # -------------------------------------------------
-imputer = SimpleImputer(strategy="median")
-X = imputer.fit_transform(X)
-
-scaler = StandardScaler()
-X = scaler.fit_transform(X)
+preprocess_pipeline = joblib.load("model/preprocess_pipeline.pkl")
+X = preprocess_pipeline.transform(X)
 
 # -------------------------------------------------
-# Load model
+# Load trained model
 # -------------------------------------------------
 model = joblib.load(f"model/{model_name.replace(' ', '_')}.pkl")
 
