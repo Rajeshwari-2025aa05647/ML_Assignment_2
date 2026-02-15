@@ -27,7 +27,7 @@ st.title("Machine Learning Classification Models")
 # -------------------------------------------------
 # Test data download
 # -------------------------------------------------
-st.subheader("Test Dataset")
+st.subheader("Official Test Dataset")
 
 TEST_DATA_URL = (
     "https://raw.githubusercontent.com/"
@@ -55,15 +55,35 @@ model_name = st.selectbox(
 )
 
 # -------------------------------------------------
+# Optional upload section
+# -------------------------------------------------
+st.subheader("Optional: Upload Your Own Test Data")
+
+uploaded_file = st.file_uploader(
+    "Upload CSV test file (must contain 'num' column)",
+    type=["csv"]
+)
+
+use_uploaded = st.checkbox(
+    "Use uploaded CSV for evaluation (metrics may differ from README)",
+    value=False
+)
+
+# -------------------------------------------------
 # Load data
 # -------------------------------------------------
-df = pd.read_csv(TEST_DATA_URL)
+if use_uploaded and uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+    st.info("Using uploaded test dataset")
+else:
+    df = pd.read_csv(TEST_DATA_URL)
+    st.info("Using official test dataset (matches README metrics)")
 
 # -------------------------------------------------
 # Validate target
 # -------------------------------------------------
 if "num" not in df.columns:
-    st.error("Target column 'num' not found.")
+    st.error("Target column 'num' not found in dataset.")
     st.stop()
 
 # -------------------------------------------------
@@ -81,7 +101,7 @@ for col in X.columns:
         X[col] = le.fit_transform(X[col].astype(str))
 
 # -------------------------------------------------
-# IMPUTE + SCALE 
+# Impute + scale (stable deployment approach)
 # -------------------------------------------------
 imputer = SimpleImputer(strategy="median")
 X = imputer.fit_transform(X)
