@@ -88,7 +88,7 @@ y = (df["num"] > 0).astype(int)
 X = df.drop("num", axis=1)
 
 # -------------------------------------------------
-# Encode categorical features
+# Encode categorical features (MUST match notebook)
 # -------------------------------------------------
 for col in X.columns:
     if X[col].dtype == "object":
@@ -100,9 +100,8 @@ for col in X.columns:
 # -------------------------------------------------
 preprocess_pipeline = joblib.load("model/preprocess_pipeline.pkl")
 
-X = X.values  # 🔑 convert DataFrame to NumPy array
+X = X.values  # convert DataFrame → NumPy (important)
 X = preprocess_pipeline.transform(X)
-
 
 # -------------------------------------------------
 # Load model
@@ -131,7 +130,7 @@ c5.metric("F1 Score", f"{f1_score(y, y_pred):.4f}")
 c6.metric("MCC", f"{matthews_corrcoef(y, y_pred):.4f}")
 
 # -------------------------------------------------
-# Confusion Matrix
+# Confusion Matrix (aesthetic)
 # -------------------------------------------------
 st.subheader("Confusion Matrix")
 
@@ -143,7 +142,7 @@ ax.set_ylabel("Actual")
 st.pyplot(fig)
 
 # -------------------------------------------------
-# Classification Report
+# Classification Report (table)
 # -------------------------------------------------
 st.subheader("Classification Report")
 
