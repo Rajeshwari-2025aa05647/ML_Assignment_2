@@ -90,7 +90,7 @@ elif not use_uploaded:
     if st.button("Run Evaluation on Official Test Data"):
         st.session_state.df_eval = pd.read_csv(TEST_DATA_URL)
         st.session_state.run_evaluation = True
-        st.success("Evaluating on official test dataset (matches notebook & README)")
+        st.success("Evaluating on official test dataset")
 
 # -------------------------------------------------
 # Stop execution until evaluation is triggered
