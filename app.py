@@ -96,10 +96,13 @@ for col in X.columns:
         X[col] = le.fit_transform(X[col].astype(str))
 
 # -------------------------------------------------
-# Apply preprocessing pipeline (FINAL FIX)
+# Apply preprocessing pipeline
 # -------------------------------------------------
 preprocess_pipeline = joblib.load("model/preprocess_pipeline.pkl")
+
+X = X.values  # 🔑 convert DataFrame to NumPy array
 X = preprocess_pipeline.transform(X)
+
 
 # -------------------------------------------------
 # Load model
